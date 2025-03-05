@@ -1,34 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WhatsApp Redirect</title>
+    <title>WhatsApp Link Distributor</title>
     <script>
+        // Список номеров менеджеров
         const managers = [
             '7758368335',
             '7777071994',
-            '7081006606'
+            '7001006606'
         ];
 
-        function getManagerForClient() {
-            let assignedManager = localStorage.getItem('assignedManager');
-
-            if (!assignedManager) {
-                const managerIndex = Math.floor(Math.random() * managers.length);
-                assignedManager = managers[managerIndex];
-                localStorage.setItem('assignedManager', assignedManager);
-            }
-
-            return assignedManager;
+        // Проверяем, есть ли уже закреплённый менеджер в localStorage
+        function getAssignedManager() {
+            return localStorage.getItem('assignedManager');
         }
 
-        function redirectToWhatsApp() {
-            const manager = getManagerForClient();
+        // Закрепляем менеджера за клиентом
+        function assignManager(manager) {
+            localStorage.setItem('assignedManager', manager);
+        }
+
+        // Получаем менеджера для нового клиента
+        function getNextManager() {
+            const assignedManager = getAssignedManager();
+            if (assignedManager) {
+                return assignedManager;
+            }
+
+            const lastIndex = localStorage.getItem('lastManagerIndex') || 0;
+            const nextIndex = (parseInt(lastIndex) + 1) % managers.length;
+
+            const manager = managers[nextIndex];
+            assignManager(manager);
+            localStorage.setItem('lastManagerIndex', nextIndex);
+
+            return manager;
+        }
+
+        // Автоматически перенаправляем клиента на WhatsApp
+        window.onload = function() {
+            const manager = getNextManager();
             const message = encodeURIComponent('Саламатсызба?');
             const link = `https://wa.me/${manager}?text=${message}`;
             window.location.href = link;
-        }
-
-        window.onload = redirectToWhatsApp;
+        };
     </script>
 </head>
 <body>
