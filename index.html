@@ -3,7 +3,7 @@
 <head>
     <title>WhatsApp Link Distributor</title>
     <script>
-        // Список номеров менеджеров
+        // Список номеров менеджеров без первой цифры 8
         const managers = [
             '7758368335',
             '7777071994',
@@ -27,23 +27,33 @@
                 return assignedManager;
             }
 
-            const lastIndex = localStorage.getItem('lastManagerIndex') || 0;
-            const nextIndex = (parseInt(lastIndex) + 1) % managers.length;
+            // Получаем индекс последнего использованного менеджера
+            let lastIndex = localStorage.getItem('lastManagerIndex');
+            lastIndex = lastIndex ? parseInt(lastIndex) : -1;
 
+            // Определяем следующего менеджера по очереди
+            const nextIndex = (lastIndex + 1) % managers.length;
             const manager = managers[nextIndex];
+
+            // Сохраняем нового менеджера за клиентом
             assignManager(manager);
+
+            // Обновляем индекс последнего менеджера
             localStorage.setItem('lastManagerIndex', nextIndex);
 
             return manager;
         }
 
-        // Автоматически перенаправляем клиента на WhatsApp
-        window.onload = function() {
+        // Перенаправление в WhatsApp
+        function redirectToWhatsApp() {
             const manager = getNextManager();
             const message = encodeURIComponent('Саламатсызба?');
-            const link = `https://wa.me/${manager}?text=${message}`;
+            const link = `https://wa.me/${manager}?text=${message}`; // Добавляем 7 перед номером
             window.location.href = link;
-        };
+        }
+
+        // Автоматический редирект при открытии страницы
+        window.onload = redirectToWhatsApp;
     </script>
 </head>
 <body>
